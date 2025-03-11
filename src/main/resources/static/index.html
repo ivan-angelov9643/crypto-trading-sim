@@ -2,9 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Trading Simulator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+<h1>Crypto Trading Simulator</h1>
+<div id="crypto-prices">
+    <h2>Top 20 Cryptocurrencies</h2>
+    <table id="crypto-table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Symbol</th>
+            <th>Price (USD)</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+<div id="trading-section">
+    <h2>Trade Cryptocurrency</h2>
+    <input type="text" id="crypto-symbol" placeholder="Enter symbol (e.g., BTC)">
+    <input type="number" id="quantity" placeholder="Quantity">
+    <button id="buy-button">Buy</button>
+    <button id="sell-button">Sell</button>
+</div>
+<div id="account-section">
+    <h2>Account Balance: $<span id="balance">10000</span></h2>
+    <button id="reset-button">Reset Account</button>
+</div>
+<div id="transaction-history">
+    <h2>Transaction History</h2>
+    <ul id="history-list">
+    </ul>
+</div>
+<script src="app.js"></script>
 </body>
 </html>
