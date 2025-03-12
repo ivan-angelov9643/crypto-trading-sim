@@ -77,7 +77,7 @@ public class KrakenWebSocketClient {
 
     @OnMessage
     public void onMessage(String message) {
-        System.out.println("Received: " + message);
+//        System.out.println("Received: " + message);
 
         try {
             if (message.startsWith("[")) {
@@ -97,8 +97,8 @@ public class KrakenWebSocketClient {
 
                 if (cryptoPrices.containsKey(symbol)) {
                     CryptoPrice cryptoPrice = cryptoPrices.get(symbol);
-                    cryptoPrice.setPrice(lastTradePrice); // Update the price
-                    System.out.println("Updated price for " + symbol + ": " + lastTradePrice);
+                    cryptoPrice.setPrice(lastTradePrice);
+//                    System.out.println("Updated price for " + symbol + ": " + lastTradePrice);
                 } else {
                     System.out.println("Symbol not found in cryptoPrices: " + symbol);
                 }
@@ -115,7 +115,7 @@ public class KrakenWebSocketClient {
                         System.out.println("Subscription failed: " + jsonObject.get("errorMessage").getAsString());
                     }
                 } else if (jsonObject.has("event") && jsonObject.get("event").getAsString().equals("heartbeat")) {
-                    System.out.println("Heartbeat received");
+//                    System.out.println("Heartbeat received");
                 }
             } else {
                 System.out.println("Received plain text message: " + message);
@@ -154,6 +154,7 @@ public class KrakenWebSocketClient {
 
     public void connect() {
         try {
+            // TODO try with resources?
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, new URI("wss://ws.kraken.com"));
         } catch (Exception e) {

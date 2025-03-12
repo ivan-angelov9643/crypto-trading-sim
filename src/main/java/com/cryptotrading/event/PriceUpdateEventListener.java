@@ -23,7 +23,7 @@ public class PriceUpdateEventListener {
     public void handlePriceUpdateEvent(PriceUpdateEvent event) throws IOException {
 //        System.out.println("Handling PriceUpdateEvent");
 //        System.out.println("Number of active sessions: " + sessionManager.getSessions().size());
-        Map<String, CryptoPrice> prices = event.getPrices();
+        Map<String, CryptoPrice> prices = event.prices();
         String jsonPrices = gson.toJson(prices);
 
         for (WebSocketSession session : sessionManager.getSessions()) {

@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Trading Simulator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <h1>Crypto Trading Simulator</h1>
+
 <div id="crypto-prices">
     <h2>Top 20 Cryptocurrencies</h2>
     <table id="crypto-table">
@@ -16,28 +17,324 @@
             <th>Name</th>
             <th>Symbol</th>
             <th>Price (USD)</th>
+            <th>Owned</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
+            <tr id="BTC-row">
+                <td>Bitcoin</td>
+                <td>XBT</td>
+                <td id="BTC-price">$0.00</td>
+                <td>
+                    <span id="BTC-owned-quantity">0.0000</span> BTC
+                    <br>
+                    <span id="BTC-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'BTC')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'BTC')">Sell</button>
+                </td>
+            </tr>
+            <tr id="ETH-row">
+                <td>Ethereum</td>
+                <td>ETH</td>
+                <td id="ETH-price">$0.00</td>
+                <td>
+                    <span id="ETH-owned-quantity">0.0000</span> ETH
+                    <br>
+                    <span id="ETH-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'ETH')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'ETH')">Sell</button>
+                </td>
+            </tr>
+            <tr id="USDT-row">
+                <td>Tether</td>
+                <td>USDT</td>
+                <td id="USDT-price">$0.00</td>
+                <td>
+                    <span id="USDT-owned-quantity">0.0000</span> USDT
+                    <br>
+                    <span id="USDT-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'USDT')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'USDT')">Sell</button>
+                </td>
+            </tr>
+            <tr id="USDC-row">
+                <td>USD Coin</td>
+                <td>USDC</td>
+                <td id="USDC-price">$0.00</td>
+                <td>
+                    <span id="USDC-owned-quantity">0.0000</span> USDC
+                    <br>
+                    <span id="USDC-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'USDC')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'USDC')">Sell</button>
+                </td>
+            </tr>
+            <tr id="LINK-row">
+                <td>Chainlink</td>
+                <td>LINK</td>
+                <td id="LINK-price">$0.00</td>
+                <td>
+                    <span id="LINK-owned-quantity">0.0000</span> LINK
+                    <br>
+                    <span id="LINK-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'LINK')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'LINK')">Sell</button>
+                </td>
+            </tr>
+            <tr id="LTC-row">
+                <td>Litecoin</td>
+                <td>LTC</td>
+                <td id="LTC-price">$0.00</td>
+                <td>
+                    <span id="LTC-owned-quantity">0.0000</span> LTC
+                    <br>
+                    <span id="LTC-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'LTC')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'LTC')">Sell</button>
+                </td>
+            </tr>
+            <tr id="XRP-row">
+                <td>XRP</td>
+                <td>XRP</td>
+                <td id="XRP-price">$0.00</td>
+                <td>
+                    <span id="XRP-owned-quantity">0.0000</span> XRP
+                    <br>
+                    <span id="XRP-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'XRP')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'XRP')">Sell</button>
+                </td>
+            </tr>
+            <tr id="ADA-row">
+                <td>Cardano</td>
+                <td>ADA</td>
+                <td id="ADA-price">$0.00</td>
+                <td>
+                    <span id="ADA-owned-quantity">0.0000</span> ADA
+                    <br>
+                    <span id="ADA-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'ADA')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'ADA')">Sell</button>
+                </td>
+            </tr>
+            <tr id="SOL-row">
+                <td>Solana</td>
+                <td>SOL</td>
+                <td id="SOL-price">$0.00</td>
+                <td>
+                    <span id="SOL-owned-quantity">0.0000</span> SOL
+                    <br>
+                    <span id="SOL-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'SOL')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'SOL')">Sell</button>
+                </td>
+            </tr>
+            <tr id="MATIC-row">
+                <td>Polygon</td>
+                <td>MATIC</td>
+                <td id="MATIC-price">$0.00</td>
+                <td>
+                    <span id="MATIC-owned-quantity">0.0000</span> MATIC
+                    <br>
+                    <span id="MATIC-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'MATIC')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'MATIC')">Sell</button>
+                </td>
+            </tr>
+            <tr id="DOT-row">
+                <td>Polkadot</td>
+                <td>DOT</td>
+                <td id="DOT-price">$0.00</td>
+                <td>
+                    <span id="DOT-owned-quantity">0.0000</span> DOT
+                    <br>
+                    <span id="DOT-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'DOT')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'DOT')">Sell</button>
+                </td>
+            </tr>
+            <tr id="DAI-row">
+                <td>Dai</td>
+                <td>DAI</td>
+                <td id="DAI-price">$0.00</td>
+                <td>
+                    <span id="DAI-owned-quantity">0.0000</span> DAI
+                    <br>
+                    <span id="DAI-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'DAI')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'DAI')">Sell</button>
+                </td>
+            </tr>
+            <tr id="SHIB-row">
+                <td>Shiba Inu</td>
+                <td>SHIB</td>
+                <td id="SHIB-price">$0.00</td>
+                <td>
+                    <span id="SHIB-owned-quantity">0.0000</span> SHIB
+                    <br>
+                    <span id="SHIB-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'SHIB')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'SHIB')">Sell</button>
+                </td>
+            </tr>
+            <tr id="TRX-row">
+                <td>TRON</td>
+                <td>TRX</td>
+                <td id="TRX-price">$0.00</td>
+                <td>
+                    <span id="TRX-owned-quantity">0.0000</span> TRX
+                    <br>
+                    <span id="TRX-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'TRX')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'TRX')">Sell</button>
+                </td>
+            </tr>
+            <tr id="AVAX-row">
+                <td>Avalanche</td>
+                <td>AVAX</td>
+                <td id="AVAX-price">$0.00</td>
+                <td>
+                    <span id="AVAX-owned-quantity">0.0000</span> AVAX
+                    <br>
+                    <span id="AVAX-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'AVAX')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'AVAX')">Sell</button>
+                </td>
+            </tr>
+            <tr id="XLM-row">
+                <td>Stellar</td>
+                <td>XLM</td>
+                <td id="XLM-price">$0.00</td>
+                <td>
+                    <span id="XLM-owned-quantity">0.0000</span> XLM
+                    <br>
+                    <span id="XLM-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'XLM')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'XLM')">Sell</button>
+                </td>
+            </tr>
+            <tr id="BCH-row">
+                <td>Bitcoin Cash</td>
+                <td>BCH</td>
+                <td id="BCH-price">$0.00</td>
+                <td>
+                    <span id="BCH-owned-quantity">0.0000</span> BCH
+                    <br>
+                    <span id="BCH-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'BCH')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'BCH')">Sell</button>
+                </td>
+            </tr>
+            <tr id="FIL-row">
+                <td>Filecoin</td>
+                <td>FIL</td>
+                <td id="FIL-price">$0.00</td>
+                <td>
+                    <span id="FIL-owned-quantity">0.0000</span> FIL
+                    <br>
+                    <span id="FIL-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'FIL')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'FIL')">Sell</button>
+                </td>
+            </tr>
+            <tr id="AAVE-row">
+                <td>Aave</td>
+                <td>AAVE</td>
+                <td id="AAVE-price">$0.00</td>
+                <td>
+                    <span id="AAVE-owned-quantity">0.0000</span> AAVE
+                    <br>
+                    <span id="AAVE-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'AAVE')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'AAVE')">Sell</button>
+                </td>
+            </tr>
+            <tr id="SUSHI-row">
+                <td>SushiSwap</td>
+                <td>SUSHI</td>
+                <td id="SUSHI-price">$0.00</td>
+                <td>
+                    <span id="SUSHI-owned-quantity">0.0000</span> SUSHI
+                    <br>
+                    <span id="SUSHI-average-price">$0.00</span> avg
+                </td>
+                <td>
+                    <button class="buy-button" onclick="handleTransaction('buy', 'SUSHI')">Buy</button>
+                    <button class="sell-button" onclick="handleTransaction('sell', 'SUSHI')">Sell</button>
+                </td>
+            </tr>
         </tbody>
     </table>
 </div>
-<div id="trading-section">
-    <h2>Trade Cryptocurrency</h2>
-    <input type="text" id="crypto-symbol" placeholder="Enter symbol (e.g., BTC)">
-    <input type="number" id="quantity" placeholder="Quantity">
-    <button id="buy-button">Buy</button>
-    <button id="sell-button">Sell</button>
-</div>
+
 <div id="account-section">
-    <h2>Account Balance: $<span id="balance">10000</span></h2>
-    <button id="reset-button">Reset Account</button>
+    <h2>Account Balance: $<span id="balance">0</span></h2>
+    <button id="reset-button" class="reset-button">Reset Account</button>
 </div>
+
 <div id="transaction-history">
     <h2>Transaction History</h2>
-    <ul id="history-list">
-    </ul>
+    <ul id="history-list"></ul>
 </div>
-<script src="app.js"></script>
+
+<!-- Modal -->
+<div id="transaction-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 id="modal-title"></h2>
+        <p>Price: <span id="modal-price"></span></p>
+        <label>Quantity:</label>
+        <input type="number" id="modal-quantity" min="0.0001" step="0.0001" placeholder="Quantity">
+        <label>Value:</label>
+        <input type="number" id="modal-value" min="0" step="0.01" placeholder="Value">
+        <button id="confirm-transaction">Confirm</button>
+        <button id="cancel-transaction">Cancel</button>
+    </div>
+</div>
+
+<script src="js/fetchUserData.js"></script>
+<script src="js/transactionHandler.js"></script>
+<script src="js/fetchCryptoData.js"></script>
+<script src="js/inputFieldsUpdate.js"></script>
+<script src="js/resetAccount.js"></script>
 </body>
 </html>
