@@ -17,6 +17,9 @@ import java.util.Arrays;
 @Service
 public class KrakenWebSocketClient {
     private Session session;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+    private final Gson gson = new Gson();
     private final Map<String, CryptoPrice> cryptoPrices = new LinkedHashMap<>() {{
         put("BTC", new CryptoPrice("Bitcoin", "BTC", "0"));
         put("ETH", new CryptoPrice("Ethereum", "ETH", "0"));
@@ -40,9 +43,6 @@ public class KrakenWebSocketClient {
         put("SUSHI", new CryptoPrice("SushiSwap", "SUSHI", "0"));
     }};
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
     private static final List<String> CRYPTO_PAIRS = Arrays.asList(
         "XBT/USD", // Bitcoin (BTC)
         "ETH/USD", // Ethereum (ETH)
@@ -65,8 +65,6 @@ public class KrakenWebSocketClient {
         "AAVE/USD", // Aave (AAVE)
         "SUSHI/USD" // SushiSwap (SUSHI)
     );
-
-    private final Gson gson = new Gson();
 
     @OnOpen
     public void onOpen(Session session) {
@@ -98,12 +96,11 @@ public class KrakenWebSocketClient {
                 if (cryptoPrices.containsKey(symbol)) {
                     CryptoPrice cryptoPrice = cryptoPrices.get(symbol);
                     cryptoPrice.setPrice(lastTradePrice);
-//                    System.out.println("Updated price for " + symbol + ": " + lastTradePrice);
+
+                    eventPublisher.publishEvent(new PriceUpdateEvent(cryptoPrice));
                 } else {
                     System.out.println("Symbol not found in cryptoPrices: " + symbol);
                 }
-
-                eventPublisher.publishEvent(new PriceUpdateEvent(cryptoPrices));
             } else if (message.startsWith("{")) {
                 JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
 

@@ -10,7 +10,7 @@ function handleTransaction(type, currency) {
 
     const priceObserver = createPriceObserver(priceElement, modalPriceElement);
     setupConfirmTransactionButton(modalPriceElement, type, currency, priceObserver);
-    setupCancelTransactionButton(modal, priceObserver);
+    setupCancelTransactionButton(priceObserver);
 }
 
 function getTransactionModal() {
@@ -78,7 +78,6 @@ function setupConfirmTransactionButton(modalPriceElement, type, currency, priceO
         } catch (error) {
             console.error("Error processing transaction:", error);
         }
-
         closeModal(priceObserver);
     };
 }

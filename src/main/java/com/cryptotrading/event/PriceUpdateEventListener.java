@@ -23,12 +23,12 @@ public class PriceUpdateEventListener {
     public void handlePriceUpdateEvent(PriceUpdateEvent event) throws IOException {
 //        System.out.println("Handling PriceUpdateEvent");
 //        System.out.println("Number of active sessions: " + sessionManager.getSessions().size());
-        Map<String, CryptoPrice> prices = event.prices();
-        String jsonPrices = gson.toJson(prices);
+        CryptoPrice updatedPrice = event.updatedPrice();
+        String jsonPrice = gson.toJson(updatedPrice);
 
         for (WebSocketSession session : sessionManager.getSessions()) {
             if (session.isOpen()) {
-                session.sendMessage(new TextMessage(jsonPrices));
+                session.sendMessage(new TextMessage(jsonPrice));
 //                System.out.println("Sent message to session: " + jsonPrices);
             }
         }
