@@ -73,8 +73,9 @@ function setupConfirmTransactionButton(modalPriceElement, type, currency, priceO
                 alert(result);
             } else {
                 alert("Transaction successful!");
+                fetchAndUpdateUserBalance();
+                fetchAndUpdateUserAsset(currency);
                 addTransactionToHistory(transaction);
-                fetchAndUpdateUserAsset(currency)
             }
         } catch (error) {
             console.error("Error processing transaction:", error);

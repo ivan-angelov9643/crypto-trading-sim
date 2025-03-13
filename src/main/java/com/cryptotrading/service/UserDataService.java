@@ -21,7 +21,11 @@ public class UserDataService {
         return usersData.getOrDefault(userId, new UserData());
     }
 
-    public Asset getAsset(String userId, String asset) {
+    public Asset getUserAsset(String userId, String asset) {
         return usersData.getOrDefault(userId, new UserData()).getOwnedAssets().get(asset);
+    }
+
+    public double getUserBalance(String userId) {
+        return usersData.getOrDefault(userId, new UserData()).getBalance();
     }
 }

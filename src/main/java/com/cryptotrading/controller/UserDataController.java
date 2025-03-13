@@ -22,13 +22,13 @@ public class UserDataController {
     }
     @GetMapping("/{userId}/assets/{asset}")
     public Asset getUserAsset(@PathVariable String userId, @PathVariable String asset) {
-        return userDataService.getAsset(userId, asset);
+        return userDataService.getUserAsset(userId, asset);
     }
 
-//    @GetMapping("/{userId}/balance")
-//    public double getUserBalance(@PathVariable String userId) {
-//        return userDataService.getUserBalance(userId);
-//    }
+    @GetMapping("/{userId}/balance")
+    public double getUserBalance(@PathVariable String userId) {
+        return userDataService.getUserBalance(userId);
+    }
 
 //    @GetMapping("/{userId}/transactions")
 //    public List<Transaction> getUserTransactions(@PathVariable String userId) {

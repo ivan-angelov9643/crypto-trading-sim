@@ -7,20 +7,51 @@ h1, h2 {
   color: #333;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
 
 th, td {
     padding: 2px 8px;
-  border: 1px solid #ddd;
-  text-align: left;
+    border: 1px solid #ddd;
+    text-align: left;
+    white-space: nowrap;
 }
 
 th {
-  background-color: #f4f4f4;
+    background-color: #f4f4f4;
+}
+
+#crypto-prices-and-account {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+}
+
+#crypto-table {
+    width: auto; /* Change width to auto */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    table-layout: auto; /* Let the table adjust column width based on content */
+}
+
+.account {
+    width: 70%; /* Adjust the width of the right-side text */
+    margin-left: 50px;
+    padding: 10px;
+    box-sizing: border-box; /* Ensure padding does not affect width */
+    background-color: #f4f4f4; /* Optional: add background color */
+    border-radius: 8px; /* Optional: add rounded corners */
+}
+
+#account-section, #transaction-history {
+    margin-bottom: 20px; /* Space between sections */
+}
+
+#crypto-prices h2 {
+    margin-bottom: 10px;
+}
+
+table td {
+    min-width: 50px;
 }
 
 input[type="number"] {
@@ -129,4 +160,3 @@ button {
 .modal-content button:hover {
     opacity: 0.8;
 }
-

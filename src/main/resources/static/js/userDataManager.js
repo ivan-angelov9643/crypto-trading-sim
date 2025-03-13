@@ -97,5 +97,25 @@ async function fetchAndUpdateUserAsset(asset) {
     }
 }
 
+async function fetchUserBalance() {
+    return await fetch(`/users-data/${window.userId}/balance`);
+}
+
+async function fetchAndUpdateUserBalance() {
+    const response = await fetchUserBalance();
+    if (!response.ok) {
+        console.error('Failed to fetch user balance');
+        return;
+    }
+
+    try {
+        const balanceData = await response.json();
+
+        document.getElementById('balance').textContent = balanceData.toFixed(2);
+    } catch (error) {
+        console.error('Error parsing balance data:', error);
+    }
+}
+
 document.getElementById('reset-button').addEventListener('click', resetAccount);
 document.addEventListener('DOMContentLoaded', fetchAndUpdateUserData);
