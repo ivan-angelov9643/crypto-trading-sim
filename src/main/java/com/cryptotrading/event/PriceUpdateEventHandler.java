@@ -10,12 +10,15 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
-public class PriceUpdateEventListener {
+public class PriceUpdateEventHandler {
+    private final SessionManager sessionManager;
+
     @Autowired
-    private SessionManager sessionManager;
+    public PriceUpdateEventHandler(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
 
     private final Gson gson = new Gson();
 

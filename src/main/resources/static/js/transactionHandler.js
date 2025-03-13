@@ -1,18 +1,3 @@
-function handleTransaction(type, currency) {
-    const modal = getTransactionModal();
-    const title = getModalTitle();
-    const priceElement = getPriceElement(currency);
-    const modalPriceElement = getModalPriceElement();
-
-    updateModalPrice(priceElement, modalPriceElement);
-    setModalTitle(title, type, currency);
-    modal.style.display = 'block';
-
-    const priceObserver = createPriceObserver(priceElement, modalPriceElement);
-    setupConfirmTransactionButton(modalPriceElement, type, currency, priceObserver);
-    setupCancelTransactionButton(priceObserver);
-}
-
 function getTransactionModal() {
     return document.getElementById('transaction-modal');
 }
@@ -21,16 +6,16 @@ function getModalTitle() {
     return document.getElementById('modal-title');
 }
 
-function setModalTitle(title, type, currency) {
-    title.textContent = `${type.toUpperCase()} ${currency}`;
-}
-
 function getPriceElement(currency) {
     return document.getElementById(`${currency}-price`);
 }
 
 function getModalPriceElement() {
     return document.getElementById('modal-price');
+}
+
+function setModalTitle(title, type, currency) {
+    title.textContent = `${type.toUpperCase()} ${currency}`;
 }
 
 function updateModalPrice(priceElement, modalPriceElement) {
@@ -43,6 +28,21 @@ function createPriceObserver(priceElement, modalPriceElement) {
     const priceObserver = new MutationObserver(() => updateModalPrice(priceElement, modalPriceElement));
     priceObserver.observe(priceElement, { childList: true, subtree: true });
     return priceObserver;
+}
+
+async function sendTransaction(transaction) {
+    return await fetch('/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transaction)
+    });
+}
+
+function closeModal(priceObserver) {
+    document.getElementById("modal-value").value = '';
+    document.getElementById("modal-quantity").value = '';
+    getTransactionModal().style.display = 'none';
+    priceObserver.disconnect();
 }
 
 function setupConfirmTransactionButton(modalPriceElement, type, currency, priceObserver) {
@@ -73,7 +73,8 @@ function setupConfirmTransactionButton(modalPriceElement, type, currency, priceO
                 alert(result);
             } else {
                 alert("Transaction successful!");
-                fetchUserData();
+                addTransactionToHistory(transaction);
+                fetchAndUpdateUserAsset(currency)
             }
         } catch (error) {
             console.error("Error processing transaction:", error);
@@ -82,22 +83,22 @@ function setupConfirmTransactionButton(modalPriceElement, type, currency, priceO
     };
 }
 
-async function sendTransaction(transaction) {
-    return await fetch('/users-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transaction)
-    });
-}
-
 function setupCancelTransactionButton(priceObserver) {
     document.getElementById('cancel-transaction').onclick = () => closeModal(priceObserver);
     document.querySelector('.close-btn').onclick = () => closeModal(priceObserver);
 }
 
-function closeModal(priceObserver) {
-    document.getElementById("modal-value").value = '';
-    document.getElementById("modal-quantity").value = '';
-    getTransactionModal().style.display = 'none';
-    priceObserver.disconnect();
+function handleTransaction(type, currency) {
+    const modal = getTransactionModal();
+    const title = getModalTitle();
+    const priceElement = getPriceElement(currency);
+    const modalPriceElement = getModalPriceElement();
+
+    setModalTitle(title, type, currency);
+    updateModalPrice(priceElement, modalPriceElement);
+    modal.style.display = 'block';
+
+    const priceObserver = createPriceObserver(priceElement, modalPriceElement);
+    setupConfirmTransactionButton(modalPriceElement, type, currency, priceObserver);
+    setupCancelTransactionButton(priceObserver);
 }

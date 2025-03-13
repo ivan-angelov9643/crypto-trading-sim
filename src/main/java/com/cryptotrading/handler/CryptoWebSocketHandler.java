@@ -15,13 +15,15 @@ import java.io.IOException;
 
 @Component
 public class CryptoWebSocketHandler extends TextWebSocketHandler {
-    @Autowired
-    private SessionManager sessionManager;
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
-    @Autowired
-    private KrakenWebSocketClient krakenWebSocketClient;
+    private final SessionManager sessionManager;
+    private final KrakenWebSocketClient krakenWebSocketClient;
     private final Gson gson = new Gson();
+
+    @Autowired
+    public CryptoWebSocketHandler(SessionManager sessionManager, KrakenWebSocketClient krakenWebSocketClient) {
+        this.sessionManager = sessionManager;
+        this.krakenWebSocketClient = krakenWebSocketClient;
+    }
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message)  {
         String payload = message.getPayload();

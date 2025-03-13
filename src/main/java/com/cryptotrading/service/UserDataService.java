@@ -1,6 +1,7 @@
 package com.cryptotrading.service;
 
 import com.cryptotrading.exception.TransactionException;
+import com.cryptotrading.model.Asset;
 import com.cryptotrading.model.Transaction;
 import com.cryptotrading.model.UserData;
 import org.springframework.stereotype.Service;
@@ -18,5 +19,9 @@ public class UserDataService {
 
     public UserData getUserData(String userId) {
         return usersData.getOrDefault(userId, new UserData());
+    }
+
+    public Asset getAsset(String userId, String asset) {
+        return usersData.getOrDefault(userId, new UserData()).getOwnedAssets().get(asset);
     }
 }

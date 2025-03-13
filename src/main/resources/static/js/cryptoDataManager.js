@@ -1,3 +1,16 @@
+function updatePrice(crypto) {
+    const priceElement = document.getElementById(`${crypto.symbol}-price`);
+
+    if (priceElement) {
+        priceElement.textContent = `$${crypto.price}`;
+    }
+}
+
+function updatePrices(prices) {
+    for (const [symbol, crypto] of Object.entries(prices)) {
+        updatePrice(crypto);
+    }
+}
 
 const socket = new WebSocket('ws://localhost:8080/crypto-prices');
 
@@ -8,9 +21,9 @@ socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
         if (data.hasOwnProperty("name") && data.hasOwnProperty("symbol") && data.hasOwnProperty("price")) {
-            updateSinglePrice(data);
+            updatePrice(data);
         } else {
-            updateAllPrices(data);
+            updatePrices(data);
         }
     } catch (error) {
         console.error('Failed to parse WebSocket message:', error);
@@ -28,21 +41,3 @@ socket.onclose = function() {
 socket.onerror = function(error) {
     console.log('WebSocket error: ' + error);
 };
-
-function updateAllPrices(prices) {
-    for (const [symbol, crypto] of Object.entries(prices)) {
-        updateCryptoTable(crypto);
-    }
-}
-
-function updateSinglePrice(crypto) {
-    updateCryptoTable(crypto);
-}
-
-function updateCryptoTable(crypto) {
-    const priceElement = document.getElementById(`${crypto.symbol}-price`);
-
-    if (priceElement) {
-        priceElement.textContent = `$${crypto.price}`;
-    }
-}
