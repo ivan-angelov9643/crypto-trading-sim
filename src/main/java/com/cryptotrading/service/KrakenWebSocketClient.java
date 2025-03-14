@@ -1,8 +1,11 @@
 package com.cryptotrading.service;
 
 import com.cryptotrading.event.PriceUpdateEvent;
+import com.cryptotrading.handler.CryptoWebSocketHandler;
 import com.cryptotrading.model.CryptoPrice;
 import com.google.gson.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import java.util.Arrays;
 @ClientEndpoint
 @Service
 public class KrakenWebSocketClient {
+    private static final Logger logger = LoggerFactory.getLogger(KrakenWebSocketClient.class);
     private Session session;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -68,19 +72,17 @@ public class KrakenWebSocketClient {
 
     @OnOpen
     public void onOpen(Session session) {
-        System.out.println("Connected to Kraken WebSocket");
+        logger.info("Connected to Kraken WebSocket, session ID: {}", session.getId());
+
         this.session = session;
         subscribeToTicker();
     }
 
     @OnMessage
     public void onMessage(String message) {
-//        System.out.println("Received: " + message);
-
         try {
             if (message.startsWith("[")) {
                 JsonArray jsonArray = JsonParser.parseString(message).getAsJsonArray();
-
                 JsonObject tickerData = jsonArray.get(1).getAsJsonObject();
                 String pair = jsonArray.get(3).getAsString();
 
@@ -89,7 +91,7 @@ public class KrakenWebSocketClient {
 
                 String symbol = getCryptoSymbol(pair);
                 if (symbol.equals("UNK")) {
-                    System.out.println("Unsupported pair: " + pair);
+                    logger.warn("Unsupported pair received: {}", pair);
                     return;
                 }
 
@@ -99,7 +101,7 @@ public class KrakenWebSocketClient {
 
                     eventPublisher.publishEvent(new PriceUpdateEvent(cryptoPrice));
                 } else {
-                    System.out.println("Symbol not found in cryptoPrices: " + symbol);
+                    logger.warn("Symbol not found in cryptoPrices: {}", symbol);
                 }
             } else if (message.startsWith("{")) {
                 JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
@@ -107,29 +109,31 @@ public class KrakenWebSocketClient {
                 if (jsonObject.has("event") && jsonObject.get("event").getAsString().equals("subscriptionStatus")) {
                     String status = jsonObject.get("status").getAsString();
                     if (status.equals("subscribed")) {
-                        System.out.println("Successfully subscribed to: " + jsonObject.get("pair").getAsString());
+                        logger.info("Successfully subscribed to: " + jsonObject.get("pair").getAsString());
                     } else {
-                        System.out.println("Subscription failed: " + jsonObject.get("errorMessage").getAsString());
+                        logger.warn("Subscription failed: " + jsonObject.get("errorMessage").getAsString());
                     }
                 } else if (jsonObject.has("event") && jsonObject.get("event").getAsString().equals("heartbeat")) {
-//                    System.out.println("Heartbeat received");
+                    logger.debug("Heartbeat received");
                 }
             } else {
-                System.out.println("Received plain text message: " + message);
+                logger.debug("Received plain text message: {}", message);
             }
+        } catch (JsonSyntaxException e) {
+            logger.error("Failed to parse WebSocket message due to malformed JSON: ", e);
         } catch (Exception e) {
-            System.out.println("Failed to parse WebSocket message: " + e.getMessage());
+            logger.error("Unexpected error while processing message: ", e);
         }
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("Disconnected from Kraken WebSocket: " + closeReason);
+        logger.info("Disconnected from Kraken WebSocket, session ID: {}, Reason: {}", session.getId(), closeReason.getReasonPhrase());
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        System.out.println("WebSocket error: " + throwable.getMessage());
+        logger.error("WebSocket error occurred: ", throwable);
     }
 
     private void subscribeToTicker() {
@@ -143,6 +147,7 @@ public class KrakenWebSocketClient {
         JsonArray pairsArray = new JsonArray();
         for (String pair : CRYPTO_PAIRS) {
             pairsArray.add(pair);
+            logger.info("Successfully subscribed to pair: {}", pair);
         }
         subscriptionMessage.add("pair", pairsArray);
 
@@ -151,11 +156,10 @@ public class KrakenWebSocketClient {
 
     public void connect() {
         try {
-            // TODO try with resources?
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             container.connectToServer(this, new URI("wss://ws.kraken.com"));
         } catch (Exception e) {
-            System.out.println("Failed to connect to Kraken WebSocket: " + e.getMessage());
+            logger.error("Failed to connect to Kraken WebSocket: ", e);
         }
     }
 

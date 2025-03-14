@@ -26,28 +26,24 @@ th {
     width: 100%;
 }
 
-#crypto-table {
-    width: auto; /* Change width to auto */
+table {
+    width: auto;
     border-collapse: collapse;
     margin-bottom: 20px;
-    table-layout: auto; /* Let the table adjust column width based on content */
+    table-layout: auto;
 }
 
 .account {
-    width: 70%; /* Adjust the width of the right-side text */
-    margin-left: 50px;
+    width: 80%;
+    margin-left: 30px;
     padding: 10px;
-    box-sizing: border-box; /* Ensure padding does not affect width */
-    background-color: #f4f4f4; /* Optional: add background color */
-    border-radius: 8px; /* Optional: add rounded corners */
+    box-sizing: border-box;
+    background-color: #f4f4f4;
+    border-radius: 8px;
 }
 
 #account-section, #transaction-history {
-    margin-bottom: 20px; /* Space between sections */
-}
-
-#crypto-prices h2 {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 table td {
@@ -63,8 +59,14 @@ button {
   cursor: pointer;
 }
 
+#account-section {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
 #account-section, #transaction-history {
-  margin-top: 20px;
+  margin-left: 30px;
 }
 
 tr {
@@ -159,4 +161,40 @@ button {
 
 .modal-content button:hover {
     opacity: 0.8;
+}
+
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    max-width: 300px;
+}
+
+.success {
+    background-color: #4CAF50;
+}
+
+.error {
+    background-color: #D9534F;
+}
+
+.notification.hide {
+    opacity: 0;
+}
+
+.reset-button {
+    margin-left: 30px;
 }

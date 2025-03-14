@@ -432,7 +432,18 @@
 
         <div id="transaction-history">
             <h4>Transaction History</h4>
-            <ul id="history-list"></ul>
+            <table id="history-table">
+                <thead>
+                <tr>
+                    <th>Action</th>
+                    <th>Asset</th>
+                    <th>Quantity</th>
+                    <th>Price (USD)</th>
+                    <th>Total (USD)</th>
+                </tr>
+                </thead>
+                <tbody id="history-table-body"></tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -443,19 +454,19 @@
         <span class="close-btn">&times;</span>
         <h2 id="modal-title"></h2>
         <p>Price: <span id="modal-price"></span></p>
-        <label>Quantity:</label>
-        <input type="number" id="modal-quantity" min="0.0001" step="0.0001" placeholder="Quantity">
-        <label>Value:</label>
-        <input type="number" id="modal-value" min="0" step="0.01" placeholder="Value">
+        <label>Quantity:<input type="number" id="modal-quantity" min="0.0001" step="0.0001" placeholder="Quantity"></label>
+        <label>Value:<input type="number" id="modal-value" min="0" step="0.01" placeholder="Value"></label>
         <button id="confirm-transaction">Confirm</button>
         <button id="cancel-transaction">Cancel</button>
     </div>
 </div>
 
+<div id="notification-container"></div>
+
 <script src="js/userDataManager.js"></script>
 <script src="js/transactionHandler.js"></script>
 <script src="js/cryptoDataManager.js"></script>
 <script src="js/inputFieldsUpdateHandler.js"></script>
-<script src="js/ownedVisibiltyManager.js"></script>
+<script src="js/ownedManager.js"></script>
 </body>
 </html>

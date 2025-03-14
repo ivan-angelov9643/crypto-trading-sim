@@ -1,12 +1,30 @@
 package com.cryptotrading.model;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
+
 // TODO add datetime of transaction
 public class Transaction {
+
+    @NotNull(message = "User ID cannot be null.")
     private String userId;
-    private String type; // "buy" or "sell"
+
+    @NotNull(message = "Transaction type cannot be null.")
+    @Pattern(regexp = "^(buy|sell)$", message = "Transaction type must be 'buy' or 'sell'.")
+    private String type;
+
+    @NotNull(message = "Asset cannot be null.")
     private String asset;
+
+    @Positive(message = "Quantity must be greater than zero.")
     private double quantity;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Price must be at least 0.")
     private double price;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Value must be at least 0.")
     private double value;
 
     public Transaction(String userId, String type, String asset, double quantity, double price, double value) {

@@ -6,52 +6,98 @@ if (!window.userId) {
 
 function resetAccount() {
     localStorage.removeItem("userId");
-    console.log('Account reset. Reloading page...');
+    console.info('Account reset. Reloading page...');
     location.reload();
 }
 
 async function fetchUserData() {
-    return await fetch(`/users-data/${window.userId}`);
+    try {
+        const response = await fetch(`/users-data/${window.userId}`);
+        if (!response.ok) {
+            console.error('Failed to fetch user data. Status:', response.status);
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
+    }
 }
 
 function updateAsset(asset, assetData) {
+    if (asset == null) {
+        console.error('Asset is null or undefined');
+        return;
+    }
+    if (assetData == null) {
+        console.error('Asset data is null or undefined');
+        return;
+    }
+
      const quantityElement = document.getElementById(`${asset}-owned-quantity`);
      const averagePriceElement = document.getElementById(`${asset}-average-price`);
 
      if (quantityElement && averagePriceElement) {
-         quantityElement.textContent = assetData.quantity.toFixed(6);
-         averagePriceElement.textContent = `$${assetData.averagePrice.toFixed(2)}`;
+        if (assetData.quantity && !isNaN(assetData.quantity)) {
+            quantityElement.textContent = assetData.quantity.toFixed(6);
+        } else {
+            console.warn(`Invalid quantity for asset ${asset}:`, assetData.quantity);
+        }
+
+        if (assetData.averagePrice && !isNaN(assetData.averagePrice)) {
+            averagePriceElement.textContent = `$${assetData.averagePrice.toFixed(2)}`;
+        } else {
+            console.warn(`Invalid average price for asset ${asset}:`, assetData.averagePrice);
+        }
      } else {
          console.error(`Elements for asset ${asset} not found in the DOM.`);
      }
 }
 
 function updateAssets(ownedAssets) {
+    if (ownedAssets == null) {
+        console.error('Owned assets is null or undefined');
+        return;
+    }
+
     for (const [asset, assetData] of Object.entries(ownedAssets)) {
         updateAsset(asset, assetData);
+        updateVisibility(asset);
+        updateProfit(asset)
     }
 }
 
 function addTransactionToHistory(transaction) {
-    const historyList = document.getElementById('history-list');
-
-    const listItem = document.createElement('li');
-    let action = '';
-
-    if (transaction.type.toLowerCase() === 'buy') {
-        action = 'Bought';
-    } else if (transaction.type.toLowerCase() === 'sell') {
-        action = 'Sold';
+    if (transaction == null) {
+        console.error('Transaction is null or undefined');
+        return;
     }
 
-    listItem.textContent = `${action} ${transaction.quantity} ${transaction.asset}
-        at $${transaction.price} each for a total of $${transaction.value}`;
+    const historyTableBody = document.getElementById('history-table-body');
 
-    historyList.appendChild(listItem);
+    const row = document.createElement('tr');
+    let action = transaction.type.toLowerCase() === 'buy' ? 'Bought' : 'Sold';
+
+    row.innerHTML = `
+        <td>${action}</td>
+        <td>${transaction.asset}</td>
+        <td>${transaction.quantity}</td>
+        <td>$${transaction.price}</td>
+        <td>$${transaction.value}</td>
+    `;
+
+    historyTableBody.appendChild(row);
+
+    console.info('Transaction added to history:', transaction);
 }
 
 function updateTransactionHistory(transactions) {
-    const historyList = document.getElementById('history-list');
+    if (transactions == null) {
+        console.error('Transaction is null or undefined');
+        return;
+    }
+
+    const historyList = document.getElementById('history-table-body');
     historyList.innerHTML = "";
 
     for (let i = 0; i < transactions.length; i++) {
@@ -60,60 +106,85 @@ function updateTransactionHistory(transactions) {
 }
 
 async function fetchAndUpdateUserData() {
-    const response = await fetchUserData();
-    if (!response.ok) {
-        console.error('Failed to fetch user account data');
+    const userData = await fetchUserData();
+    if (!userData) {
+        console.error('Failed to fetch or parse user account data');
         return;
     }
 
     try {
-        const userData = await response.json();
+        if (userData.balance && !isNaN(userData.balance)) {
+            document.getElementById('balance').textContent = userData.balance.toFixed(2);
+        } else {
+            console.warn('Invalid balance data:', userData.balance);
+        }
 
-        document.getElementById('balance').textContent = userData.balance.toFixed(2);
         updateAssets(userData.ownedAssets);
         updateTransactionHistory(userData.transactions);
     } catch (error) {
-        console.error('Error parsing user data:', error);
+        console.error('Error processing user data:', error);
     }
 }
 
 async function fetchUserAsset(asset) {
-    return await fetch(`/users-data/${window.userId}/assets/${asset}`);
+    if (asset == null) {
+        console.error('Asset is null or undefined');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/users-data/${window.userId}/assets/${asset}`);
+        if (!response.ok) {
+            console.error('Failed to fetch user asset:', asset, 'Status:', response.status);
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching asset data:', asset, error);
+        return null;
+    }
 }
 
 async function fetchAndUpdateUserAsset(asset) {
-    const response = await fetchUserAsset(asset);
-    if (!response.ok) {
-        console.error('Failed to fetch user asset');
+    if (asset == null) {
+        console.error('Asset is null or undefined');
         return;
     }
 
-    try {
-        const assetData = await response.json();
-
-        updateAsset(asset, assetData);
-    } catch (error) {
-        console.error('Error parsing asset data:', error);
+    const assetData = await fetchUserAsset(asset);
+    if (!assetData) {
+        console.error('Failed to fetch or parse asset data for', asset);
+        return;
     }
+
+    updateAsset(asset, assetData);
 }
 
 async function fetchUserBalance() {
-    return await fetch(`/users-data/${window.userId}/balance`);
+    try {
+        const response = await fetch(`/users-data/${window.userId}/balance`);
+        if (!response.ok) {
+            console.error('Failed to fetch user balance. Status:', response.status);
+            return null;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching balance data:', error);
+        return null;
+    }
 }
 
 async function fetchAndUpdateUserBalance() {
-    const response = await fetchUserBalance();
-    if (!response.ok) {
-        console.error('Failed to fetch user balance');
+    const balanceData = await fetchUserBalance();
+    if (!balanceData) {
+        console.error('Failed to fetch or parse balance data');
         return;
     }
 
-    try {
-        const balanceData = await response.json();
-
+    if (!isNaN(balanceData)) {
         document.getElementById('balance').textContent = balanceData.toFixed(2);
-    } catch (error) {
-        console.error('Error parsing balance data:', error);
+    } else {
+        console.warn('Invalid balance data:', balanceData);
     }
 }
 

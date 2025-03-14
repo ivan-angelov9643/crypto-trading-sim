@@ -1,79 +1,82 @@
 function updatePrice(crypto) {
-    const priceElement = document.getElementById(`${crypto.symbol}-price`);
-    const ownedContainer = document.getElementById(`${crypto.symbol}-owned`);
-    const quantityElement = document.getElementById(`${crypto.symbol}-owned-quantity`);
-    const avgPriceElement = document.getElementById(`${crypto.symbol}-average-price`);
-    const profitValueElement = document.getElementById(`${crypto.symbol}-owned-profit-value`);
-    const profitPercentElement = document.getElementById(`${crypto.symbol}-owned-profit-percent`);
+    if (crypto == null) {
+        console.error('Crypto is null or undefined');
+        return;
+    }
+
+    const { symbol, price } = crypto;
+
+    if (symbol == null) {
+        console.error('Symbol is null or undefined');
+        return;
+    }
+
+    if (price == null) {
+        console.error('Price is null or undefined');
+        return;
+    }
+
+    const priceElement = document.getElementById(`${symbol}-price`);
 
     if (priceElement) {
-        priceElement.textContent = `$${crypto.price}`;
+        priceElement.textContent = `$${price}`;
+    } else {
+        console.warn(`Element not found for symbol: ${symbol}`);
     }
 
-    if (ownedContainer && ownedContainer.style.display !== "none") {
-        const quantity = parseFloat(quantityElement?.textContent || "0");
-        const avgPrice = parseFloat(avgPriceElement?.textContent.replace("$", "") || "0");
-        const currentPrice = parseFloat(crypto.price);
-
-        if (quantity > 0 && avgPrice > 0) {
-            const totalCost = quantity * avgPrice;
-            const currentValue = quantity * currentPrice;
-            const profitValue = currentValue - totalCost;
-            const profitPercent = ((currentPrice - avgPrice) / avgPrice) * 100;
-
-            if (profitValueElement) {
-                if (profitValue < 0) {
-                    profitValueElement.textContent = `-$${-profitValue.toFixed(2)}`;
-                } else {
-                    profitValueElement.textContent = `+$${profitValue.toFixed(2)}`;
-                }
-                profitValueElement.style.color = profitValue >= 0 ? "green" : "red";
-            }
-
-            if (profitPercentElement) {
-                if (profitValue < 0) {
-                    profitPercentElement.textContent = `(${profitPercent.toFixed(4)}%)`;
-                } else {
-                    profitPercentElement.textContent = `(+${profitPercent.toFixed(4)}%)`;
-                }
-                profitPercentElement.style.color = profitPercent >= 0 ? "green" : "red";
-            }
-        }
-    }
+    console.debug(`Updated price for ${symbol}: $${price}`);
+    updateProfit(symbol);
 }
 
 function updatePrices(prices) {
+    if (prices == null) {
+        console.error('Prices is null or undefined');
+        return;
+    }
+
     for (const [symbol, crypto] of Object.entries(prices)) {
         updatePrice(crypto);
     }
 }
 
-const socket = new WebSocket('ws://localhost:8080/crypto-prices');
-
-socket.onmessage = function(event) {
-//    console.log('Received: ' + event.data);
-
-    try {
-        const data = JSON.parse(event.data);
-
-        if (data.hasOwnProperty("name") && data.hasOwnProperty("symbol") && data.hasOwnProperty("price")) {
-            updatePrice(data);
-        } else {
-            updatePrices(data);
-        }
-    } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
+let socket;
+function connectWebSocket() {
+    if (socket && socket.readyState !== WebSocket.CLOSED) {
+        socket.close();
     }
-};
 
-socket.onopen = function() {
-    console.log('WebSocket connection established');
-};
+    socket = new WebSocket('ws://localhost:8080/crypto-prices');
 
-socket.onclose = function() {
-    console.log('WebSocket connection closed');
-};
+    socket.onopen = function () {
+        console.log('WebSocket connection established');
+    };
 
-socket.onerror = function(error) {
-    console.log('WebSocket error: ' + error);
-};
+    socket.onmessage = function (event) {
+        try {
+            const data = JSON.parse(event.data);
+
+            if (!data) {
+                console.error('Received empty WebSocket message');
+                return;
+            }
+
+            if (data.symbol && typeof data.symbol === 'string' && data.hasOwnProperty("price")) {
+                updatePrice(data);
+            } else {
+                updatePrices(data);
+            }
+        } catch (error) {
+            console.error('Failed to parse WebSocket message:', error, 'Raw message:', event.data);
+        }
+    };
+
+    socket.onclose = function (event) {
+        console.warn(`WebSocket closed (code: ${event.code}, reason: ${event.reason})`);
+    };
+
+    socket.onerror = function (error) {
+        console.error('WebSocket error:', error);
+    };
+}
+
+connectWebSocket();

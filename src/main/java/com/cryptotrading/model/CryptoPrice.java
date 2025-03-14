@@ -1,8 +1,23 @@
 package com.cryptotrading.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 public class CryptoPrice {
+    private static final Logger logger = LoggerFactory.getLogger(CryptoPrice.class);
+    @NotNull(message = "Name cannot be null.")
+    @NotEmpty(message = "Name cannot be empty.")
     private String name;
+    @NotNull(message = "Symbol cannot be null.")
+    @NotEmpty(message = "Symbol cannot be empty.")
+    @Pattern(regexp = "^[A-Za-z0-9]{3,5}$", message = "Symbol should be alphanumeric with 3-5 characters.")
     private String symbol;
+    @NotNull(message = "Price cannot be null.")
+    @Pattern(regexp = "^\\d+(\\.\\d*)?$", message = "Price must be a valid number with up to 2 decimal places.")
     private String price;
 
     public CryptoPrice(String name, String symbol, String price) {

@@ -4,8 +4,13 @@ import com.cryptotrading.event.PriceUpdateEvent;
 import com.cryptotrading.service.KrakenWebSocketClient;
 import com.cryptotrading.session.SessionManager;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -13,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+@Validated
 @Component
 public class CryptoWebSocketHandler extends TextWebSocketHandler {
+    private static final Logger logger = LoggerFactory.getLogger(CryptoWebSocketHandler.class);
     private final SessionManager sessionManager;
     private final KrakenWebSocketClient krakenWebSocketClient;
     private final Gson gson = new Gson();
@@ -25,26 +32,34 @@ public class CryptoWebSocketHandler extends TextWebSocketHandler {
         this.krakenWebSocketClient = krakenWebSocketClient;
     }
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message)  {
+    protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message)  {
         String payload = message.getPayload();
-        System.out.println("Received from frontend: " + payload);
+        logger.info("Received message from frontend: {}", payload);
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        sessionManager.addSession(session);
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
+        try {
+            logger.info("New WebSocket connection established: {}", session.getId());
 
-        String jsonPrices = gson.toJson(krakenWebSocketClient.getCryptoPrices());
-        session.sendMessage(new TextMessage(jsonPrices));
+            sessionManager.addSession(session);
+            String jsonPrices = gson.toJson(krakenWebSocketClient.getCryptoPrices());
+            session.sendMessage(new TextMessage(jsonPrices));
 
-        System.out.println("New WebSocket connection established: " + session.getId());
-        System.out.println("Number of active sessions: " + sessionManager.getSessions().size());
+            logger.info("Number of active sessions: {}", sessionManager.getSessions().size());
+        } catch (IOException e) {
+            logger.error("Error sending initial crypto prices to session {}: {}", session.getId(), e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error in afterConnectionEstablished for session {}: {}", session.getId(), e.getMessage(), e);
+        }
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
+    public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus status) {
+        logger.info("WebSocket connection closed: {} with status {}", session.getId(), status);
+
         sessionManager.removeSession(session);
-        System.out.println("WebSocket connection closed: " + session.getId());
-        System.out.println("Number of active sessions: " + sessionManager.getSessions().size());
+
+        logger.info("Number of active sessions: {}", sessionManager.getSessions().size());
     }
 }
