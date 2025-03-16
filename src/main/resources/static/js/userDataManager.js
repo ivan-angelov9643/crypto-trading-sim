@@ -1,18 +1,12 @@
-window.userId = localStorage.getItem("userId");
-if (!window.userId) {
-    window.userId = crypto.randomUUID();
-    localStorage.setItem("userId", window.userId);
-}
-
-function resetAccount() {
-    localStorage.removeItem("userId");
-    console.info('Account reset. Reloading page...');
-    location.reload();
-}
-
 async function fetchUserData() {
     try {
-        const response = await fetch(`/users-data/${window.userId}`);
+        const token = localStorage.getItem('jwtToken');
+        const response = await fetch(`/user`, {
+        method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
         if (!response.ok) {
             console.error('Failed to fetch user data. Status:', response.status);
             return null;
@@ -38,13 +32,13 @@ function updateAsset(asset, assetData) {
      const averagePriceElement = document.getElementById(`${asset}-average-price`);
 
      if (quantityElement && averagePriceElement) {
-        if (assetData.quantity && !isNaN(assetData.quantity)) {
+        if (!isNaN(assetData.quantity)) {
             quantityElement.textContent = assetData.quantity.toFixed(6);
         } else {
             console.warn(`Invalid quantity for asset ${asset}:`, assetData.quantity);
         }
 
-        if (assetData.averagePrice && !isNaN(assetData.averagePrice)) {
+        if (!isNaN(assetData.averagePrice)) {
             averagePriceElement.textContent = `$${assetData.averagePrice.toFixed(2)}`;
         } else {
             console.warn(`Invalid average price for asset ${asset}:`, assetData.averagePrice);
@@ -55,15 +49,22 @@ function updateAsset(asset, assetData) {
 }
 
 function updateAssets(ownedAssets) {
-    if (ownedAssets == null) {
-        console.error('Owned assets is null or undefined');
+    if (!Array.isArray(ownedAssets)) {
+        console.error('Owned assets should be an array');
         return;
     }
 
-    for (const [asset, assetData] of Object.entries(ownedAssets)) {
-        updateAsset(asset, assetData);
-        updateVisibility(asset);
-        updateProfit(asset)
+    for (let i = 0; i < ownedAssets.length; i++) {
+        const assetData = ownedAssets[i];
+
+        if (!assetData || !assetData.assetSymbol) {
+            console.warn('Invalid asset data at index', i, ':', assetData);
+            continue;
+        }
+
+        updateAsset(assetData.assetSymbol, assetData);
+        updateVisibility(assetData.assetSymbol);
+        updateProfit(assetData.assetSymbol);
     }
 }
 
@@ -80,10 +81,10 @@ function addTransactionToHistory(transaction) {
 
     row.innerHTML = `
         <td>${action}</td>
-        <td>${transaction.asset}</td>
+        <td>${transaction.assetSymbol}</td>
         <td>${transaction.quantity}</td>
         <td>$${transaction.price}</td>
-        <td>$${transaction.value}</td>
+        <td>$${transaction.total}</td>
     `;
 
     historyTableBody.appendChild(row);
@@ -105,6 +106,16 @@ function updateTransactionHistory(transactions) {
     }
 }
 
+function extractUsername(token) {
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.sub;
+    } catch (error) {
+        console.error("Invalid token", error);
+        return null;
+    }
+}
+
 async function fetchAndUpdateUserData() {
     const userData = await fetchUserData();
     if (!userData) {
@@ -118,7 +129,8 @@ async function fetchAndUpdateUserData() {
         } else {
             console.warn('Invalid balance data:', userData.balance);
         }
-
+        const token = localStorage.getItem('jwtToken');
+        document.getElementById("username-display").textContent = `User: ${extractUsername(token)}`;
         updateAssets(userData.ownedAssets);
         updateTransactionHistory(userData.transactions);
     } catch (error) {
@@ -133,7 +145,13 @@ async function fetchUserAsset(asset) {
     }
 
     try {
-        const response = await fetch(`/users-data/${window.userId}/assets/${asset}`);
+        const token = localStorage.getItem('jwtToken');
+        const response = await fetch(`/assets/${asset}`, {
+        method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
         if (!response.ok) {
             console.error('Failed to fetch user asset:', asset, 'Status:', response.status);
             return null;
@@ -162,7 +180,13 @@ async function fetchAndUpdateUserAsset(asset) {
 
 async function fetchUserBalance() {
     try {
-        const response = await fetch(`/users-data/${window.userId}/balance`);
+        const token = localStorage.getItem('jwtToken');
+        const response = await fetch(`/balance`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
         if (!response.ok) {
             console.error('Failed to fetch user balance. Status:', response.status);
             return null;
@@ -188,5 +212,4 @@ async function fetchAndUpdateUserBalance() {
     }
 }
 
-document.getElementById('reset-button').addEventListener('click', resetAccount);
 document.addEventListener('DOMContentLoaded', fetchAndUpdateUserData);

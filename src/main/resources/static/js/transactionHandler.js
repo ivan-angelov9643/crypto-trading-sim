@@ -68,9 +68,13 @@ async function sendTransaction(transaction) {
     }
 
     try {
+        const token = localStorage.getItem('jwtToken');
         const response = await fetch('/transactions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
             body: JSON.stringify(transaction)
         });
 
@@ -162,12 +166,11 @@ function setupConfirmTransactionButton(modalPriceElement, type, currency, priceO
         }
 
         const transaction = {
-           userId: window.userId,
            type: type,
            quantity: quantity,
            price: currentPrice,
-           value: value,
-           asset: currency
+           total: value,
+           assetSymbol: currency
         };
 
         console.info('Transaction details:', transaction);
@@ -176,7 +179,8 @@ function setupConfirmTransactionButton(modalPriceElement, type, currency, priceO
         if (result) {
             showNotification("Transaction successful!");
             fetchAndUpdateUserBalance();
-            fetchAndUpdateUserAsset(currency);
+            await fetchAndUpdateUserAsset(currency);
+            updateProfit(currency);
             addTransactionToHistory(transaction);
         }
 
